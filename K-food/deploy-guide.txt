@@ -1,6 +1,0 @@
-K-Food Dodam deploy guide
-
-1. Upload the entire K-food folder to GitHub.
-2. Enable GitHub Pages or drag the folder into Netlify/Vercel.
-3. The app entry point is index.html.
-4. Optional: put your Google Maps JavaScript API key in config.js for restaurant autocomplete.
