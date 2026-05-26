@@ -1,0 +1,633 @@
+const $ = (s, root = document) => root.querySelector(s);
+const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+const STORE_KEY = "kfood-dodam-v3";
+const AUTH_KEY = "kfood-dodam-auth";
+
+const dishDB = [
+  ["Tteokbokki","떡볶이","Sweet and spicy rice cakes","Street Food","Seoul","🌶️"],
+  ["Gimbap","김밥","Seaweed rice rolls with fillings","Home Meal","Busan","🍙"],
+  ["Bibimbap","비빔밥","Mixed rice with vegetables","Home Meal","Jeonju","🥗"],
+  ["Hotteok","호떡","Sweet pancake with brown sugar","Street Food","Seoul","🥞"],
+  ["Bungeoppang","붕어빵","Fish-shaped pastry with sweet filling","Street Food","Seoul","🐟"],
+  ["Korean Corn Dog","핫도그","Crispy chewy corn dog","Street Food","Seoul","🌭"],
+  ["Japchae","잡채","Stir-fried glass noodles","Home Meal","Seoul","🍜"],
+  ["Sundubu-jjigae","순두부찌개","Spicy soft tofu stew","Soup","Jeju","🍲"],
+  ["Mandu","만두","Korean dumplings","Snack","Seoul","🥟"],
+  ["Kimchi-jjigae","김치찌개","Kimchi stew with deep flavor","Soup","Seoul","🍲"],
+  ["Samgyeopsal","삼겹살","Grilled pork belly","BBQ","Seoul","🥓"],
+  ["Jjajangmyeon","짜장면","Black bean sauce noodles","Noodles","Incheon","🍝"],
+  ["Naengmyeon","냉면","Cold buckwheat noodles","Noodles","Pyongyang","🍜"],
+  ["Bulgogi","불고기","Sweet soy marinated beef","BBQ","Seoul","🥩"],
+  ["Dakgalbi","닭갈비","Spicy stir-fried chicken","BBQ","Chuncheon","🍗"],
+  ["Kalguksu","칼국수","Knife-cut noodle soup","Noodles","Seoul","🍜"],
+  ["Pajeon","파전","Savory scallion pancake","Snack","Busan","🥞"],
+  ["Odeng","오뎅","Warm fish cake skewers","Street Food","Busan","🍢"],
+  ["Gyeran-ppang","계란빵","Egg bread street snack","Street Food","Seoul","🥚"],
+  ["Jokbal","족발","Braised pig's trotters","Night Food","Seoul","🍖"],
+  ["Bossam","보쌈","Boiled pork wraps","Home Meal","Seoul","🥬"],
+  ["Galbitang","갈비탕","Short rib soup","Soup","Seoul","🥣"],
+  ["Seolleongtang","설렁탕","Ox bone soup","Soup","Seoul","🥣"],
+  ["Samgyetang","삼계탕","Ginseng chicken soup","Soup","Seoul","🍗"],
+  ["Maeuntang","매운탕","Spicy fish stew","Soup","Busan","🐟"],
+  ["Haemul Pajeon","해물파전","Seafood scallion pancake","Snack","Busan","🦑"],
+  ["Tangsuyuk","탕수육","Sweet sour fried pork","Fried","Incheon","🍖"],
+  ["Kkanpunggi","깐풍기","Spicy garlic fried chicken","Fried","Seoul","🍗"],
+  ["Yangnyeom Chicken","양념치킨","Sweet spicy fried chicken","Fried","Daegu","🍗"],
+  ["Soy Garlic Chicken","간장치킨","Crispy soy garlic chicken","Fried","Seoul","🍗"],
+  ["Jumeokbap","주먹밥","Korean rice balls","Home Meal","Seoul","🍙"],
+  ["Kimbap Triangle","삼각김밥","Convenience store rice triangle","Snack","Seoul","🍙"],
+  ["Kimchi Fried Rice","김치볶음밥","Fried rice with kimchi","Home Meal","Seoul","🍚"],
+  ["Budae-jjigae","부대찌개","Army base stew","Soup","Uijeongbu","🍲"],
+  ["Doenjang-jjigae","된장찌개","Soybean paste stew","Soup","Seoul","🍲"],
+  ["Janchi-guksu","잔치국수","Banquet noodle soup","Noodles","Seoul","🍜"],
+  ["Makguksu","막국수","Buckwheat noodles","Noodles","Chuncheon","🍜"],
+  ["Sotteok-sotteok","소떡소떡","Sausage and rice cake skewer","Street Food","Seoul","🍢"],
+  ["Dakkochi","닭꼬치","Chicken skewer","Street Food","Seoul","🍢"],
+  ["Gungjung Tteokbokki","궁중떡볶이","Royal soy sauce rice cakes","Home Meal","Seoul","🍽️"],
+  ["Yukhoe","육회","Korean beef tartare","Special","Seoul","🥩"],
+  ["Ganjang Gejang","간장게장","Soy marinated crab","Seafood","Incheon","🦀"],
+  ["Agujjim","아귀찜","Spicy braised monkfish","Seafood","Masan","🐟"],
+  ["Mulhoe","물회","Spicy cold raw fish soup","Seafood","Pohang","🐟"],
+  ["Hoe","회","Korean sliced raw fish","Seafood","Busan","🍣"],
+  ["Gopchang","곱창","Grilled beef intestines","BBQ","Daegu","🥘"],
+  ["Makchang","막창","Grilled entrails","BBQ","Daegu","🥘"],
+  ["Dakbal","닭발","Spicy chicken feet","Night Food","Seoul","🌶️"],
+  ["Patbingsu","팥빙수","Shaved ice with red beans","Dessert","Seoul","🍧"],
+  ["Yakgwa","약과","Honey cookie dessert","Dessert","Seoul","🍪"],
+  ["Songpyeon","송편","Half-moon rice cake","Dessert","Seoul","🍡"],
+  ["Injeolmi","인절미","Roasted soybean rice cake","Dessert","Seoul","🍡"],
+  ["Hodu-gwaja","호두과자","Walnut-shaped pastry","Dessert","Cheonan","🥮"],
+  ["Kkwabaegi","꽈배기","Twisted Korean doughnut","Dessert","Seoul","🥨"],
+  ["Gamja Hotdog","감자핫도그","Potato coated corn dog","Street Food","Seoul","🌭"],
+  ["Kongguksu","콩국수","Cold soy milk noodles","Noodles","Seoul","🍜"],
+  ["Ganjang Bibim Guksu","간장비빔국수","Soy sauce mixed noodles","Noodles","Seoul","🍜"],
+  ["Ojingeo Bokkeum","오징어볶음","Spicy stir-fried squid","Seafood","Busan","🦑"],
+  ["Kimchi Jeon","김치전","Kimchi pancake","Snack","Seoul","🥞"],
+  ["Garaetteok","가래떡","Long cylinder rice cake","Snack","Seoul","🍡"]
+].map((d, i) => ({ id: `dish-${i+1}`, name:d[0], kr:d[1], desc:d[2], category:d[3], city:d[4], emoji:d[5] }));
+
+const stampDB = [
+  ["First Bite","Add your first dish",1,s=>s.total>=1,"✨"],
+  ["Tteokbokki Lover","Collect Tteokbokki",1,s=>s.names.has("tteokbokki")||s.kr.has("떡볶이"),"🌶️"],
+  ["Street Food Explorer","Collect 3 street foods",2,s=>s.category("Street Food")>=3,"🍢"],
+  ["Seoul Starter","Eat in Seoul twice",2,s=>s.city("seoul")>=2,"🌃"],
+  ["Favorite Keeper","Mark 3 favorites",2,s=>s.favorites>=3,"💚"],
+  ["Soup Master","Collect 4 soups",3,s=>s.category("Soup")>=4,"🍲"],
+  ["Noodle Hunter","Collect 5 noodle dishes",3,s=>s.category("Noodles")>=5,"🍜"],
+  ["Busan Taster","Try 3 dishes from Busan",3,s=>s.city("busan")>=3,"🌊"],
+  ["Seven Day Dodam","Collect 7 meals",3,s=>s.total>=7,"📅"],
+  ["Dessert Friend","Collect 4 desserts",4,s=>s.category("Dessert")>=4,"🍧"],
+  ["Spicy Challenger","Add 8 spicy/street dishes",4,s=>s.spicy>=8,"🔥"],
+  ["City Hopper","Collect from 4 cities",4,s=>s.cities>=4,"📍"],
+  ["BBQ Party","Collect 5 BBQ foods",5,s=>s.category("BBQ")>=5,"🥩"],
+  ["Fried Crunch","Collect 4 fried foods",5,s=>s.category("Fried")>=4,"🍗"],
+  ["Sea Breeze","Collect 5 seafood dishes",5,s=>s.category("Seafood")>=5,"🦀"],
+  ["Monthly Collector","Collect 15 meals",6,s=>s.total>=15,"🏅"],
+  ["Local Guide","Visit 8 restaurants",6,s=>s.restaurants>=8,"🏪"],
+  ["Five City Feast","Collect from 5 cities",6,s=>s.cities>=5,"🗺️"],
+  ["K-Food Scholar","Unlock 20 book pages",7,s=>s.unlocked>=20,"📖"],
+  ["Favorite Legend","Mark 10 favorites",7,s=>s.favorites>=10,"💖"],
+  ["Stamp Collector","Unlock 15 stamps",8,s=>s.unlockedStamps>=15,"⭐"],
+  ["K-Food Master","Collect 30 meals",8,s=>s.total>=30,"👑"],
+  ["World Host","Collect 12 categories",9,s=>s.categories>=12,"🌏"],
+  ["Dodam Complete","Unlock all 60 K-food pages",10,s=>s.unlocked>=60,"🌱"]
+].map((x,i)=>({id:`stamp-${i+1}`, title:x[0], requirement:x[1], level:x[2], test:x[3], emoji:x[4]}));
+
+let authUser = loadAuthUser();
+let state = loadState();
+let viewMonth = new Date().getMonth();
+let viewYear = new Date().getFullYear();
+let uploadData = null;
+let googlePlacesLoaded = false;
+
+function loadAuthUser(){
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || null; }
+  catch { return null; }
+}
+function saveAuthUser(){
+  if(authUser) localStorage.setItem(AUTH_KEY, JSON.stringify(authUser));
+  else localStorage.removeItem(AUTH_KEY);
+}
+function userStateKey(){
+  return authUser?.email ? `${STORE_KEY}-${authUser.email}` : `${STORE_KEY}-guest`;
+}
+function defaultState(){ return { records: [], profileIcon: null }; }
+function loadState(){
+  if(!authUser) return defaultState();
+  try { return { ...defaultState(), ...(JSON.parse(localStorage.getItem(userStateKey())) || {}) }; }
+  catch { return defaultState(); }
+}
+function saveState(){ if(authUser) localStorage.setItem(userStateKey(), JSON.stringify(state)); }
+function isLoggedIn(){ return !!authUser; }
+function toast(msg){
+  let el = $(".toast");
+  if(!el){ el = document.createElement("div"); el.className="toast"; $(".phone").appendChild(el); }
+  el.textContent = msg; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"), 1900);
+}
+function showPage(pageId){
+  if(!isLoggedIn()){
+    openAccountPanel();
+    toast("Please sign in with Google first.");
+    renderAuthGate();
+    return;
+  }
+  $$(".page").forEach(p=>p.classList.toggle("active", p.id===pageId));
+  $$(".tab").forEach(t=>t.classList.toggle("active", t.dataset.page===pageId));
+  render();
+}
+$$('.tab').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.page)));
+
+function ymd(date){ return new Date(date).toISOString().slice(0,10); }
+function monthName(y,m){ return new Date(y,m,1).toLocaleString('en',{month:'long', year:'numeric'}); }
+function recordsThisMonth(){ return state.records.filter(r=>{ const d=new Date(r.date); return d.getFullYear()===viewYear && d.getMonth()===viewMonth; }); }
+function unique(arr){ return [...new Set(arr.filter(Boolean))]; }
+function matchDish(record){
+  const q = `${record.dishName||""} ${record.dishKr||""}`.toLowerCase();
+  return dishDB.find(d => q.includes(d.name.toLowerCase()) || (d.kr && q.includes(d.kr))) || null;
+}
+function unlockedDishIds(){ return new Set(state.records.map(matchDish).filter(Boolean).map(d=>d.id)); }
+function favoriteDishIds(){
+  const ids = new Set();
+  state.records.filter(r=>r.favorite).forEach(r=>{ const d=matchDish(r); if(d) ids.add(d.id); });
+  return ids;
+}
+function stats(){
+  const cats = unique(state.records.map(r=>r.category));
+  const cities = unique(state.records.map(r=>(r.city||"").toLowerCase()));
+  const rests = unique(state.records.map(r=>r.restaurant));
+  const unlocked = unlockedDishIds();
+  const favoriteIds = favoriteDishIds();
+  const helper = {
+    total: state.records.length,
+    favorites: state.records.filter(r=>r.favorite).length,
+    restaurants: rests.length,
+    cities: cities.length,
+    categories: cats.length,
+    unlocked: unlocked.size,
+    names: new Set(state.records.map(r=>(r.dishName||"").toLowerCase())),
+    kr: new Set(state.records.map(r=>(r.dishKr||"").toLowerCase())),
+    spicy: state.records.filter(r=>/spicy|street food|떡볶이|매운|hot|chili/i.test(`${r.notes} ${r.category} ${r.dishName} ${r.dishKr}`)).length,
+    category: c => state.records.filter(r=>r.category===c).length,
+    city: c => state.records.filter(r=>(r.city||"").toLowerCase()===c).length,
+    unlockedStamps: 0
+  };
+  helper.unlockedStamps = stampDB.filter(st=>st.test(helper)).length;
+  return helper;
+}
+
+function render(){
+  if($("#calendarPage").classList.contains("active")) renderCalendar();
+  if($("#addPage").classList.contains("active")) renderAdd();
+  if($("#bookPage").classList.contains("active")) renderBook();
+  if($("#stampsPage").classList.contains("active")) renderStamps();
+  attachHeaderMenu();
+  renderAuthGate();
+}
+
+function commonHeader(title, sub = "", right="🔔"){
+  const subtitle = sub ? `<p>${sub}</p>` : "";
+  return `<div class="header"><button class="icon-btn menu-btn" type="button" aria-label="Open account menu">☰</button><div class="title"><h1>${title}</h1>${subtitle}</div><button class="icon-btn" type="button">${right}</button></div>`;
+}
+
+function renderCalendar(){
+  const page = $("#calendarPage");
+  const monthRecords = recordsThisMonth();
+  const first = new Date(viewYear, viewMonth, 1);
+  const start = new Date(viewYear, viewMonth, 1 - first.getDay());
+  const today = ymd(new Date());
+  let cells = "";
+  for(let i=0;i<42;i++){
+    const d = new Date(start); d.setDate(start.getDate()+i);
+    const dayRecords = state.records.filter(r=>ymd(r.date)===ymd(d));
+    const sticker = dayRecords[0]?.sticker || "";
+    cells += `<button class="day ${d.getMonth()!==viewMonth?'muted':''} ${ymd(d)===today?'today':''}" data-date="${ymd(d)}">
+      <span class="date-num">${d.getDate()}</span>${sticker?`<img class="cal-sticker" src="${sticker}" alt="food sticker">`:""}
+    </button>`;
+  }
+  page.innerHTML = `<div class="scroll">
+    ${commonHeader("K-Foodendar","Collect your delicious moments")}
+    <div class="month-nav"><button id="prevMonth" class="round">‹</button><h2 class="big-title">${monthName(viewYear,viewMonth).replace(' ','<br class="mob">')}</h2><button id="nextMonth" class="round">›</button></div>
+    <div class="calendar card"><div class="week"><b>Sun</b><b>Mon</b><b>Tue</b><b>Wed</b><b>Thu</b><b>Fri</b><b>Sat</b></div><div class="grid">${cells}</div></div>
+    ${state.records.length===0?`<div class="empty-state"><strong>No K-food yet</strong>Tap Add and start filling your calendar from zero.</div>`:""}
+    <div class="stats"><div class="stat"><span>🍽️</span><b>${monthRecords.length}</b><span>meals<br>this month</span></div><div class="stat"><span>📍</span><b>${unique(monthRecords.map(r=>r.restaurant)).length}</b><span>restaurants<br>this month</span></div></div>
+  </div>`;
+  $("#prevMonth").onclick=()=>{ viewMonth--; if(viewMonth<0){viewMonth=11;viewYear--;} renderCalendar(); };
+  $("#nextMonth").onclick=()=>{ viewMonth++; if(viewMonth>11){viewMonth=0;viewYear++;} renderCalendar(); };
+  $$(".day",page).forEach(b=>b.onclick=()=>{ const recs=state.records.filter(r=>ymd(r.date)===b.dataset.date); if(recs[0]) toast(`${recs[0].dishName} saved on ${b.dataset.date}`); else { showPage("addPage"); setTimeout(()=>{$("#dateInput").value = `${b.dataset.date}T12:00`;},0); } });
+}
+
+function renderAdd(){
+  const page = $("#addPage");
+  const now = new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  page.innerHTML = `<div class="scroll">
+    <div class="header"><button class="round menu-btn" type="button" aria-label="Open account menu">☰</button><div class="title"><h1>Add K-Food</h1><p>We turn your food photo into a sticker</p></div><button id="quickSave" class="round">✓</button></div>
+    <div class="card upload-card">
+      <div class="preview-row">
+        <div><div class="preview-label">Original photo</div><div class="photo-box" id="photoBox"><span class="muted">Choose photo</span></div></div>
+        <div class="arrow">⋯›</div>
+        <div><div class="preview-label">Auto-cut sticker</div><div class="sticker-box" id="stickerBox"><span class="muted">Sticker preview</span></div></div>
+      </div>
+      <input id="photoInput" type="file" accept="image/*" hidden>
+      <button class="upload-btn" id="uploadBtn">📷 Add photo</button>
+    </div>
+    <div class="card form-card">
+      <div class="row"><span class="ico">📅</span><label>Date</label><input id="dateInput" type="datetime-local" value="${now.toISOString().slice(0,16)}"><span>›</span></div>
+      <div class="row"><span class="ico">📍</span><label>Restaurant</label><input id="restaurantInput" placeholder="Search with Google Maps"><span>›</span></div>
+      <div class="map-actions"><button id="mapsBtn" class="mini-btn">Open Google Maps</button><small class="map-help">Paste a Google Maps place URL here to auto-fill the name.</small></div>
+      <div class="row"><span class="ico">🏙️</span><label>City</label><input id="cityInput" placeholder="Seoul"></div>
+      <div class="row"><span class="ico">🍲</span><label>Dish</label><input id="dishInput" list="dishList" placeholder="Tteokbokki / 떡볶이"><datalist id="dishList">${dishDB.map(d=>`<option value="${d.name} / ${d.kr}">`).join("")}</datalist></div>
+      <div class="row"><span class="ico">🏷️</span><label>Category</label><select id="categoryInput">${unique(dishDB.map(d=>d.category)).map(c=>`<option>${c}</option>`).join("")}<option>Other</option></select></div>
+      <div class="row"><span class="ico">📝</span><label>Notes</label><textarea id="notesInput" placeholder="Chewy, spicy, cozy..."></textarea></div>
+      <div class="favorite-line"><b>Favorite</b><button id="favoriteInput" class="heart-toggle" type="button">♡ Favorite</button></div>
+    </div>
+    <button id="saveBtn" class="save">Save</button>
+    <p class="notice">Tip: Put your Google Maps API key in config.js to enable restaurant autocomplete.</p>
+  </div>`;
+  $("#quickSave").onclick=saveAddForm; $("#saveBtn").onclick=saveAddForm;
+  $("#uploadBtn").onclick=()=>$("#photoInput").click();
+  $("#photoInput").onchange=handlePhoto;
+  $("#dishInput").addEventListener("input", autoFillDish);
+  $("#favoriteInput").onclick=e=>{ e.currentTarget.classList.toggle("on"); e.currentTarget.textContent = e.currentTarget.classList.contains("on") ? "♥ Favorite" : "♡ Favorite"; };
+  $("#mapsBtn").onclick=openGoogleMaps;
+  $("#restaurantInput").addEventListener("paste", handleRestaurantPaste);
+  $("#restaurantInput").addEventListener("change", handleRestaurantUrlInput);
+  $("#restaurantInput").addEventListener("blur", handleRestaurantUrlInput);
+  initPlacesAutocomplete();
+  if(uploadData) paintPreview(uploadData.original, uploadData.sticker);
+}
+function autoFillDish(){
+  const q = $("#dishInput").value.toLowerCase();
+  const d = dishDB.find(x=>q.includes(x.name.toLowerCase()) || q.includes(x.kr));
+  if(d){ $("#categoryInput").value=d.category; if(!$("#cityInput").value) $("#cityInput").value=d.city; }
+}
+function openGoogleMaps(){
+  const current = $("#restaurantInput")?.value?.trim();
+  const dish = $("#dishInput").value || "Korean food";
+  const city = $("#cityInput").value || "near me";
+  const query = current && !/^https?:\/\//i.test(current) ? current : `${dish} restaurant ${city}`;
+  const url = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+  window.open(url, "_blank", "noopener");
+}
+function handleRestaurantPaste(e){
+  const text = e.clipboardData?.getData("text")?.trim() || "";
+  if(/^https?:\/\//i.test(text)){
+    e.preventDefault();
+    const name = extractRestaurantNameFromMapsUrl(text);
+    if(name){
+      $("#restaurantInput").value = name;
+      toast("Restaurant name filled from Google Maps link.");
+    } else {
+      $("#restaurantInput").value = text;
+      toast("Copy the full Google Maps address URL, not a shortened link.");
+    }
+  }
+}
+function handleRestaurantUrlInput(e){
+  const value = e.currentTarget.value.trim();
+  if(!/^https?:\/\//i.test(value)) return;
+  const name = extractRestaurantNameFromMapsUrl(value);
+  if(name){
+    e.currentTarget.value = name;
+    toast("Restaurant name filled from Google Maps link.");
+  }
+}
+function extractRestaurantNameFromMapsUrl(value){
+  try{
+    const url = new URL(value);
+    const path = decodeURIComponent(url.pathname.replace(/\+/g," "));
+    const placeMatch = path.match(/\/place\/([^/]+)/i);
+    if(placeMatch) return cleanRestaurantName(placeMatch[1]);
+    const query = url.searchParams.get("q") || url.searchParams.get("query") || url.searchParams.get("destination");
+    if(query) return cleanRestaurantName(query);
+  } catch {}
+  return "";
+}
+function cleanRestaurantName(name){
+  return name
+    .replace(/\s*@.*$/g,"")
+    .replace(/,\s*South Korea.*$/i,"")
+    .replace(/,\s*Korea.*$/i,"")
+    .replace(/\s+-\s+Google Maps$/i,"")
+    .replace(/\s+/g," ")
+    .trim();
+}
+function initPlacesAutocomplete(){
+  const key = window.KFOOD_CONFIG?.GOOGLE_MAPS_API_KEY;
+  if(!key || googlePlacesLoaded || window.google?.maps?.places) return setupAutocomplete();
+  googlePlacesLoaded = true;
+  const script = document.createElement("script");
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=setupKfoodPlaces`;
+  script.async = true; script.defer = true;
+  document.head.appendChild(script);
+}
+window.setupKfoodPlaces = setupAutocomplete;
+function setupAutocomplete(){
+  const input = $("#restaurantInput");
+  if(!input || !window.google?.maps?.places) return;
+  const ac = new google.maps.places.Autocomplete(input, { fields:["name","address_components"], types:["restaurant"] });
+  ac.addListener("place_changed",()=>{
+    const place = ac.getPlace();
+    if(place.name) input.value = place.name;
+    const cityComp = place.address_components?.find(c=>c.types.includes("locality")||c.types.includes("administrative_area_level_1"));
+    if(cityComp && !$("#cityInput").value) $("#cityInput").value = cityComp.long_name;
+  });
+}
+async function handlePhoto(e){
+  const file = e.target.files?.[0];
+  if(!file) return;
+  const original = await fileToDataURL(file);
+  const sticker = await makeSticker(original);
+  uploadData = { original, sticker };
+  paintPreview(original, sticker);
+}
+function fileToDataURL(file){ return new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); }); }
+function loadImg(src){ return new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>res(img); img.onerror=rej; img.src=src; }); }
+async function makeSticker(src){
+  const img = await loadImg(src);
+  const canvas = $("#stickerCanvas"); const size = 520; canvas.width=size; canvas.height=size;
+  const ctx = canvas.getContext("2d"); ctx.clearRect(0,0,size,size);
+  // Soft auto-fit: preserve full photo even when food is not centered, then create a clean white sticker edge.
+  const pad = 32;
+  const scale = Math.min((size-pad*2)/img.width, (size-pad*2)/img.height);
+  const w = img.width*scale, h = img.height*scale, x=(size-w)/2, y=(size-h)/2;
+  ctx.save();
+  ctx.beginPath();
+  roundRect(ctx, x, y, w, h, 42); ctx.clip();
+  ctx.drawImage(img,x,y,w,h);
+  ctx.restore();
+  ctx.lineWidth=24; ctx.strokeStyle="#fffaf0"; ctx.shadowColor="rgba(0,0,0,.25)"; ctx.shadowBlur=18; ctx.shadowOffsetY=8;
+  ctx.beginPath(); roundRect(ctx, x, y, w, h, 42); ctx.stroke();
+  ctx.shadowColor="transparent"; ctx.lineWidth=4; ctx.strokeStyle="rgba(52,86,55,.18)";
+  ctx.beginPath(); roundRect(ctx, x+10, y+10, w-20, h-20, 34); ctx.stroke();
+  return canvas.toDataURL("image/png", .92);
+}
+function roundRect(ctx,x,y,w,h,r){
+  const rr=Math.min(r,w/2,h/2); ctx.moveTo(x+rr,y); ctx.arcTo(x+w,y,x+w,y+h,rr); ctx.arcTo(x+w,y+h,x,y+h,rr); ctx.arcTo(x,y+h,x,y,rr); ctx.arcTo(x,y,x+w,y,rr);
+}
+function paintPreview(original, sticker){
+  $("#photoBox").innerHTML = `<img src="${original}" alt="original food photo">`;
+  $("#stickerBox").innerHTML = `<img src="${sticker}" alt="auto cut food sticker">`;
+}
+function saveAddForm(){
+  if(!isLoggedIn()){ openAccountPanel(); toast("Please sign in with Google first."); return; }
+  const dishRaw = $("#dishInput")?.value.trim();
+  if(!dishRaw){ toast("Please enter a dish name."); return; }
+  if(!uploadData?.sticker){ toast("Please add a photo first."); return; }
+  const [name, kr=""] = dishRaw.split("/").map(s=>s.trim());
+  const rec = {
+    id: crypto.randomUUID ? crypto.randomUUID() : `rec-${Date.now()}`,
+    date: new Date($("#dateInput").value || Date.now()).toISOString(),
+    restaurant: $("#restaurantInput").value.trim() || "Unknown restaurant",
+    city: $("#cityInput").value.trim() || "Unknown city",
+    dishName: name,
+    dishKr: kr,
+    category: $("#categoryInput").value,
+    notes: $("#notesInput").value.trim(),
+    favorite: $("#favoriteInput").classList.contains("on"),
+    original: uploadData.original,
+    sticker: uploadData.sticker,
+    createdAt: new Date().toISOString()
+  };
+  state.records.push(rec); saveState(); uploadData=null;
+  const d = new Date(rec.date); viewYear=d.getFullYear(); viewMonth=d.getMonth();
+  toast("Saved to Calendar."); showPage("calendarPage");
+}
+
+function renderBook(){
+  const page = $("#bookPage");
+  const unlocked = unlockedDishIds();
+  const favIds = favoriteDishIds();
+  const s = stats();
+  page.innerHTML = `<div class="scroll">
+    ${commonHeader("K-Foodiary","","📖")}
+    <div class="segment"><button class="active" data-filter="all">All</button><button data-filter="collected">Collected</button><button data-filter="locked">Locked</button><button data-filter="favorites">Favorites</button></div>
+    <div class="card progress-card"><div class="mascot">📗</div><div><b>${s.unlocked} / ${dishDB.length}</b> collected<div class="bar"><i style="width:${s.unlocked/dishDB.length*100}%"></i></div><small>Keep collecting and discover more K-food!</small></div><div>⭐</div></div>
+    <div class="book-scroll"><div id="bookGrid" class="book-grid"></div></div>
+  </div>`;
+  $$(".segment button",page).forEach(b=>b.onclick=()=>{ $$(".segment button",page).forEach(x=>x.classList.remove("active")); b.classList.add("active"); fillBookGrid(b.dataset.filter); });
+  fillBookGrid("all");
+  function fillBookGrid(filter){
+    let list = dishDB.filter(d=>{
+      if(filter==="collected") return unlocked.has(d.id);
+      if(filter==="locked") return !unlocked.has(d.id);
+      if(filter==="favorites") return favIds.has(d.id);
+      return true;
+    });
+    if(list.length===0){ $("#bookGrid").innerHTML = `<div class="empty-state" style="grid-column:1/-1;color:#35513a;border-color:#d9ceb5"><strong style="color:#244c31">Nothing here yet</strong>Collect more dishes to fill this tab.</div>`; return; }
+    $("#bookGrid").innerHTML = list.map(d=>dishCard(d, unlocked.has(d.id), favIds.has(d.id))).join("");
+    $$(".fav-btn",$("#bookGrid")).forEach(btn=>btn.onclick=()=>toggleBookFavorite(btn.dataset.id));
+  }
+}
+function dishCard(d, isUnlocked, isFav){
+  const rec = state.records.find(r=>matchDish(r)?.id===d.id);
+  const img = rec?.sticker;
+  return `<article class="dish-card ${isUnlocked?'':'locked'}">
+    <button class="fav-btn ${isFav?'on':''}" data-id="${d.id}" ${isUnlocked?'':'disabled'} title="Favorite">${isFav?'♥':'♡'}</button>
+    <div class="dish-img">${img?`<img src="${img}" alt="${d.name}">`:`<span class="emoji">${d.emoji}</span>`}</div>
+    <h3>${d.name}</h3><div class="kr">${d.kr}</div><p>${isUnlocked?d.desc:'???'}</p>
+    <div class="badges"><span class="badge">${d.category}</span><span class="badge">${d.city}</span></div>
+    ${isUnlocked?'':`<div class="locked-overlay"><span>🔒 Locked</span></div>`}
+  </article>`;
+}
+function toggleBookFavorite(dishId){
+  const records = state.records.filter(r=>matchDish(r)?.id===dishId);
+  if(!records.length) return;
+  const shouldFav = !records.some(r=>r.favorite);
+  records.forEach(r=>r.favorite = shouldFav);
+  saveState(); renderBook(); toast(shouldFav?"Added to Favorites":"Removed from Favorites");
+}
+
+function renderStamps(){
+  const page = $("#stampsPage"); const s = stats();
+  const unlockedMap = new Map(); stampDB.forEach(st=>unlockedMap.set(st.id, st.test(s)));
+  page.innerHTML = `<div class="scroll">
+    ${commonHeader("My Stamps","Collect your delicious moments")}
+    <div class="stamp-summary"><div><b>${[...unlockedMap.values()].filter(Boolean).length}</b><br>stamps</div><div><b>${s.restaurants}</b><br>shops</div><div><b>${s.cities}</b><br>cities</div></div>
+    <div class="stamp-list">${stampDB.map(st=>stampCard(st,unlockedMap.get(st.id))).join("")}</div>
+    <div class="challenge"><b>Next challenge</b><br>${nextChallenge(s)}</div>
+  </div>`;
+}
+function stampCard(st, ok){
+  return `<article class="stamp ${ok?'unlocked':'locked'}"><div class="pic">${st.emoji}</div><small>Level ${st.level}</small><h3>${st.title}</h3><small>${ok?'Unlocked':st.requirement}</small></article>`;
+}
+function nextChallenge(s){
+  const next = stampDB.find(st=>!st.test(s));
+  return next ? `Lv.${next.level} ${next.title}: ${next.requirement}` : "You unlocked every stamp. Amazing!";
+}
+
+
+function attachHeaderMenu(){
+  $$(".menu-btn").forEach(btn=>btn.onclick=openAccountPanel);
+}
+function attachAuthButtons(){
+  $$("[data-action='login']").forEach(btn=>btn.onclick=startGoogleLogin);
+  $$("[data-action='logout']").forEach(btn=>btn.onclick=logout);
+  $$("[data-action='close-account']").forEach(btn=>btn.onclick=closeAccountPanel);
+  $$("[data-action='account']").forEach(btn=>btn.onclick=openAccountPanel);
+  $$("[data-action='account']").forEach(btn=>btn.onclick=openAccountPanel);
+  $$("[data-action='open-icon-picker']").forEach(btn=>btn.onclick=openIconPicker);
+  $$("[data-icon-type]").forEach(btn=>btn.onclick=()=>selectProfileIcon(btn.dataset.iconType, btn.dataset.iconValue));
+}
+function renderAuthGate(){
+  let gate = $("#authGate");
+  if(isLoggedIn()){
+    if(gate) gate.remove();
+    $$(".tab").forEach(t=>t.disabled=false);
+    return;
+  }
+  $$(".tab").forEach(t=>t.disabled=false);
+  if(!gate){
+    gate = document.createElement("div");
+    gate.id = "authGate";
+    gate.className = "auth-gate";
+    $(".phone").appendChild(gate);
+  }
+  gate.innerHTML = `<button class="auth-menu" data-action="account" aria-label="Open account menu">☰</button><div class="auth-card">
+    <div class="auth-mascot">🍙</div>
+    <h2>Sign in to start your K-Foodendar</h2>
+    <p>Google login is required before using Calendar, Add, Book, and Stamps.</p>
+    <div id="gateGoogleButton" class="google-button-slot"></div>
+    <button class="google-fallback" data-action="login">Continue with Google</button>
+    <small>${googleClientId() ? "" : "Set GOOGLE_CLIENT_ID in config.js for real Google login. Local preview login is available for Mac testing."}</small>
+  </div>`;
+  attachAuthButtons();
+  renderGoogleButton("gateGoogleButton");
+}
+function googleClientId(){ return window.KFOOD_CONFIG?.GOOGLE_CLIENT_ID?.trim(); }
+function startGoogleLogin(){
+  if(googleClientId() && window.google?.accounts?.id){
+    google.accounts.id.prompt();
+    renderGoogleButton("panelGoogleButton");
+  } else {
+    authUser = {
+      name: "K-Food Guest",
+      email: "local-preview@kfood.local",
+      picture: "",
+      loginProvider: "local-preview"
+    };
+    saveAuthUser();
+    state = loadState();
+    closeAccountPanel();
+    toast("Local preview login enabled.");
+    render();
+  }
+}
+function initGoogleLogin(){
+  const clientId = googleClientId();
+  if(!clientId || !window.google?.accounts?.id) return;
+  google.accounts.id.initialize({
+    client_id: clientId,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: true
+  });
+}
+function renderGoogleButton(containerId){
+  const el = $("#"+containerId);
+  if(!el) return;
+  const clientId = googleClientId();
+  if(!clientId || !window.google?.accounts?.id){ el.innerHTML=""; return; }
+  initGoogleLogin();
+  el.innerHTML = "";
+  google.accounts.id.renderButton(el, { theme:"outline", size:"large", shape:"pill", width:260, text:"signin_with" });
+}
+function decodeJwt(token){
+  try{
+    const body = token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");
+    return JSON.parse(decodeURIComponent(atob(body).split("").map(c=>"%"+("00"+c.charCodeAt(0).toString(16)).slice(-2)).join("")));
+  } catch { return {}; }
+}
+function handleGoogleCredential(response){
+  const profile = decodeJwt(response.credential);
+  authUser = {
+    name: profile.name || profile.given_name || "K-Food User",
+    email: profile.email || `google-${Date.now()}@kfood.local`,
+    picture: profile.picture || "",
+    loginProvider: "google"
+  };
+  saveAuthUser();
+  state = loadState();
+  closeAccountPanel();
+  toast(`Welcome, ${authUser.name}!`);
+  render();
+}
+function logout(){
+  authUser = null;
+  saveAuthUser();
+  state = loadState();
+  uploadData = null;
+  closeAccountPanel();
+  $$(".page").forEach(p=>p.classList.toggle("active", p.id==="calendarPage"));
+  $$(".tab").forEach(t=>t.classList.toggle("active", t.dataset.page==="calendarPage"));
+  toast("Logged out.");
+  render();
+}
+function getProfileVisual(){
+  if(state.profileIcon?.type === "emoji") return { type:"emoji", value:state.profileIcon.value };
+  if(state.profileIcon?.type === "image") return { type:"image", value:state.profileIcon.value };
+  if(authUser?.picture) return { type:"image", value:authUser.picture };
+  return { type:"emoji", value:"🍙" };
+}
+function profileAvatarHtml(extraClass=""){
+  const p = getProfileVisual();
+  if(p.type === "image") return `<img class="profile-avatar ${extraClass}" src="${p.value}" alt="profile photo">`;
+  return `<span class="profile-avatar emoji-avatar ${extraClass}">${p.value}</span>`;
+}
+function unlockedIconOptions(){
+  const s = stats();
+  return stampDB.map(st=>({ ...st, unlocked: st.test(s) }));
+}
+function openAccountPanel(){
+  let panel = $("#accountPanel");
+  if(!panel){
+    panel = document.createElement("div");
+    panel.id = "accountPanel";
+    panel.className = "account-panel-wrap";
+    $(".phone").appendChild(panel);
+  }
+  const logged = isLoggedIn();
+  panel.innerHTML = `<div class="shade" data-action="close-account"></div>
+    <aside class="account-panel">
+      <div class="panel-head"><b>Account</b><button data-action="close-account">×</button></div>
+      ${logged ? `<button class="profile-button" data-action="open-icon-picker">
+          ${profileAvatarHtml("large")}
+          <span><b>${authUser.name}</b><small>${authUser.email}</small><small>Tap photo to change icon</small></span>
+        </button>
+        <button class="panel-btn" data-action="logout">Log out</button>` : `<div class="login-empty"><div class="auth-mascot small">🍜</div><b>Login required</b><p>Sign in with Google to unlock every feature.</p><div id="panelGoogleButton" class="google-button-slot"></div><button class="panel-btn" data-action="login">Continue with Google</button></div>`}
+    </aside>`;
+  attachAuthButtons();
+  renderGoogleButton("panelGoogleButton");
+}
+function closeAccountPanel(){ $("#accountPanel")?.remove(); $("#iconPicker")?.remove(); }
+function openIconPicker(){
+  if(!isLoggedIn()) return;
+  const options = unlockedIconOptions();
+  let picker = $("#iconPicker");
+  if(!picker){
+    picker = document.createElement("div");
+    picker.id = "iconPicker";
+    picker.className = "icon-picker-wrap";
+    $(".phone").appendChild(picker);
+  }
+  picker.innerHTML = `<div class="shade" data-action="close-account"></div>
+    <section class="icon-picker">
+      <div class="panel-head"><b>Choose profile icon</b><button data-action="close-account">×</button></div>
+      <div class="icon-grid">
+        <button class="icon-choice" data-icon-type="google" data-icon-value="google">${authUser.picture ? `<img src="${authUser.picture}" alt="Google profile">` : "👤"}<small>Google</small></button>
+        ${options.map(st=>`<button class="icon-choice ${st.unlocked?'':'locked'}" ${st.unlocked?`data-icon-type="emoji" data-icon-value="${st.emoji}"`:"disabled"}><span>${st.emoji}</span><small>${st.unlocked?st.title:"Locked"}</small></button>`).join("")}
+      </div>
+      <p class="picker-help">Complete stamps and challenges to unlock more cute K-food icons.</p>
+    </section>`;
+  attachAuthButtons();
+}
+function selectProfileIcon(type, value){
+  if(type === "google") state.profileIcon = null;
+  else state.profileIcon = { type, value };
+  saveState();
+  $("#iconPicker")?.remove();
+  openAccountPanel();
+  toast("Profile icon changed.");
+}
+window.addEventListener("load",()=>{ initGoogleLogin(); renderGoogleButton("gateGoogleButton"); });
+
+render();
